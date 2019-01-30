@@ -13,17 +13,10 @@ import com.xxl.rpc.remoting.net.impl.netty.server.NettyServer;
  * @author xuxueli 2015-11-24 22:09:57
  */
 public enum NetEnum {
-
-
 	NETTY(NettyServer.class, NettyClient.class),
-
 	MINA(MinaServer.class, MinaClient.class),
-
 	JETTY(JettyServer.class, JettyClient.class),
-
-	JETTY_HTTP2(null, null);	// TODO
-
-
+	JETTY_HTTP2(null, null); // TODO
 	public final Class<? extends Server> serverClass;
 	public final Class<? extends Client> clientClass;
 
@@ -40,5 +33,4 @@ public enum NetEnum {
 		}
 		return defaultEnum;
 	}
-
 }

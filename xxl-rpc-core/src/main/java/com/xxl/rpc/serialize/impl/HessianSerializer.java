@@ -1,22 +1,22 @@
 package com.xxl.rpc.serialize.impl;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 import com.caucho.hessian.io.Hessian2Input;
 import com.caucho.hessian.io.Hessian2Output;
 import com.xxl.rpc.serialize.Serializer;
 import com.xxl.rpc.util.XxlRpcException;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
 /**
  * hessian serialize
+ * 
  * @author xuxueli 2015-9-26 02:53:29
  */
 public class HessianSerializer extends Serializer {
-
 	@Override
-	public <T> byte[] serialize(T obj){
+	public <T> byte[] serialize(T obj) {
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		Hessian2Output ho = new Hessian2Output(os);
 		try {
@@ -38,7 +38,6 @@ public class HessianSerializer extends Serializer {
 				throw new XxlRpcException(e);
 			}
 		}
-
 	}
 
 	@Override
@@ -63,5 +62,4 @@ public class HessianSerializer extends Serializer {
 			}
 		}
 	}
-	
 }

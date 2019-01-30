@@ -11,14 +11,12 @@ import java.lang.annotation.Target;
  *
  * @author 2015-10-29 19:44:33
  */
-@Target({ElementType.TYPE})
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 public @interface XxlRpcService {
-
-    /**
-     * @return
-     */
-    String version() default "";
-
+	/**
+	 * @return
+	 */
+	String version() default "";
 }

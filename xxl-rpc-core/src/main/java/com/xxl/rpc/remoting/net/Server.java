@@ -1,9 +1,10 @@
 package com.xxl.rpc.remoting.net;
 
-import com.xxl.rpc.remoting.net.params.BaseCallback;
-import com.xxl.rpc.remoting.provider.XxlRpcProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.xxl.rpc.remoting.net.params.BaseCallback;
+import com.xxl.rpc.remoting.provider.XxlRpcProviderFactory;
 
 /**
  * server
@@ -12,8 +13,6 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class Server {
 	protected static final Logger logger = LoggerFactory.getLogger(Server.class);
-
-
 	private BaseCallback startedCallback;
 	private BaseCallback stopedCallback;
 
@@ -24,7 +23,6 @@ public abstract class Server {
 	public void setStopedCallback(BaseCallback stopedCallback) {
 		this.stopedCallback = stopedCallback;
 	}
-
 
 	/**
 	 * start server
@@ -66,5 +64,4 @@ public abstract class Server {
 			}
 		}
 	}
-
 }

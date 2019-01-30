@@ -7,16 +7,11 @@ import com.xxl.rpc.sample.api.DemoService;
  * @author xuxueli 2018-12-21
  */
 public class XxlRpcClient {
-    public static final XxlRpcClient instance = new XxlRpcClient();
+	public static final XxlRpcClient instance = new XxlRpcClient();
+	@XxlRpcReference
+	private DemoService demoService;
 
-
-    @XxlRpcReference
-    private DemoService demoService;
-
-
-    public DemoService getDemoService() {
-        return demoService;
-    }
-
-
+	public DemoService getDemoService() {
+		return demoService;
+	}
 }

@@ -8,9 +8,7 @@ import com.xxl.rpc.sample.client.config.XxlRpcClient;
  * @author xuxueli 2018-12-21
  */
 public class IndexController extends Controller {
-
-	public void index(){
-
+	public void index() {
 		try {
 			UserDTO userDTO = XxlRpcClient.instance.getDemoService().sayHi(getPara("name"));
 			renderJson(userDTO);
@@ -18,7 +16,5 @@ public class IndexController extends Controller {
 			e.printStackTrace();
 			renderText(e.getMessage());
 		}
-
 	}
-
 }

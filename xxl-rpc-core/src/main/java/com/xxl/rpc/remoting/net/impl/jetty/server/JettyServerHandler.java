@@ -1,80 +1,74 @@
 package com.xxl.rpc.remoting.net.impl.jetty.server;
 
-import com.xxl.rpc.remoting.net.params.XxlRpcRequest;
-import com.xxl.rpc.remoting.net.params.XxlRpcResponse;
-import com.xxl.rpc.remoting.provider.XxlRpcProviderFactory;
-import com.xxl.rpc.util.ThrowableUtil;
-import com.xxl.rpc.util.XxlRpcException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import com.xxl.rpc.remoting.net.params.XxlRpcRequest;
+import com.xxl.rpc.remoting.net.params.XxlRpcResponse;
+import com.xxl.rpc.remoting.provider.XxlRpcProviderFactory;
+import com.xxl.rpc.util.ThrowableUtil;
+import com.xxl.rpc.util.XxlRpcException;
 
 /**
  * jetty handler
+ * 
  * @author xuxueli 2015-11-19 22:32:36
  */
 public class JettyServerHandler extends AbstractHandler {
 	private static Logger logger = LoggerFactory.getLogger(JettyServerHandler.class);
-
-
 	private XxlRpcProviderFactory xxlRpcProviderFactory;
+
 	public JettyServerHandler(final XxlRpcProviderFactory xxlRpcProviderFactory) {
 		this.xxlRpcProviderFactory = xxlRpcProviderFactory;
 	}
 
-
 	@Override
-	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-
-		if ("/services".equals(target)) {	// services mapping
-
+	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
+			throws IOException, ServletException {
+		if ("/services".equals(target)) { // services mapping
 			StringBuffer stringBuffer = new StringBuffer("<ui>");
-			for (String serviceKey: xxlRpcProviderFactory.getServiceData().keySet()) {
-				stringBuffer.append("<li>").append(serviceKey).append(": ").append(xxlRpcProviderFactory.getServiceData().get(serviceKey)).append("</li>");
+			for (String serviceKey : xxlRpcProviderFactory.getServiceData().keySet()) {
+				stringBuffer.append("<li>").append(serviceKey).append(": ")
+						.append(xxlRpcProviderFactory.getServiceData().get(serviceKey)).append("</li>");
 			}
 			stringBuffer.append("</ui>");
-
 			writeResponse(baseRequest, response, stringBuffer.toString().getBytes());
 			return;
-		} else {	// default remoting mapping
-
+		} else { // default remoting mapping
 			// request parse
 			XxlRpcRequest xxlRpcRequest = null;
 			try {
-
 				xxlRpcRequest = parseRequest(request);
 			} catch (Exception e) {
 				writeResponse(baseRequest, response, ThrowableUtil.toString(e).getBytes());
 				return;
 			}
-
 			// invoke
 			XxlRpcResponse xxlRpcResponse = xxlRpcProviderFactory.invokeService(xxlRpcRequest);
-
 			// response-serialize + response-write
 			byte[] responseBytes = xxlRpcProviderFactory.getSerializer().serialize(xxlRpcResponse);
 			writeResponse(baseRequest, response, responseBytes);
 		}
-
 	}
 
 	/**
 	 * write response
 	 */
-	private void writeResponse(Request baseRequest, HttpServletResponse response, byte[] responseBytes) throws IOException {
-
+	private void writeResponse(Request baseRequest, HttpServletResponse response, byte[] responseBytes)
+			throws IOException {
 		response.setContentType("text/html;charset=UTF-8");
 		response.setStatus(HttpServletResponse.SC_OK);
 		baseRequest.setHandled(true);
-
 		OutputStream out = response.getOutputStream();
 		out.write(responseBytes);
 		out.flush();
@@ -86,10 +80,11 @@ public class JettyServerHandler extends AbstractHandler {
 	private XxlRpcRequest parseRequest(HttpServletRequest request) throws Exception {
 		// deserialize request
 		byte[] requestBytes = readBytes(request);
-		if (requestBytes == null || requestBytes.length==0) {
+		if (requestBytes == null || requestBytes.length == 0) {
 			throw new XxlRpcException("xxl-rpc request data is empty.");
 		}
-		XxlRpcRequest rpcXxlRpcRequest = (XxlRpcRequest) xxlRpcProviderFactory.getSerializer().deserialize(requestBytes, XxlRpcRequest.class);
+		XxlRpcRequest rpcXxlRpcRequest = (XxlRpcRequest) xxlRpcProviderFactory.getSerializer().deserialize(requestBytes,
+				XxlRpcRequest.class);
 		return rpcXxlRpcRequest;
 	}
 
@@ -123,5 +118,4 @@ public class JettyServerHandler extends AbstractHandler {
 		}
 		return new byte[] {};
 	}
-
 }

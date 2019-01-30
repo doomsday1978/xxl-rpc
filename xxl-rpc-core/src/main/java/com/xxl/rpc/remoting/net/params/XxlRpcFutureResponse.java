@@ -1,10 +1,13 @@
 package com.xxl.rpc.remoting.net.params;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import com.xxl.rpc.remoting.invoker.XxlRpcInvokerFactory;
 import com.xxl.rpc.remoting.invoker.call.XxlRpcInvokeCallback;
 import com.xxl.rpc.util.XxlRpcException;
-
-import java.util.concurrent.*;
 
 /**
  * call back future
@@ -12,53 +15,44 @@ import java.util.concurrent.*;
  * @author xuxueli 2015-11-5 14:26:37
  */
 public class XxlRpcFutureResponse implements Future<XxlRpcResponse> {
-
 	private XxlRpcInvokerFactory invokerFactory;
-
 	// net data
 	private XxlRpcRequest request;
 	private XxlRpcResponse response;
-
 	// future lock
 	private boolean done = false;
 	private Object lock = new Object();
-
 	// callback, can be null
 	private XxlRpcInvokeCallback invokeCallback;
 
-
-	public XxlRpcFutureResponse(final XxlRpcInvokerFactory invokerFactory, XxlRpcRequest request, XxlRpcInvokeCallback invokeCallback) {
+	public XxlRpcFutureResponse(final XxlRpcInvokerFactory invokerFactory, XxlRpcRequest request,
+			XxlRpcInvokeCallback invokeCallback) {
 		this.invokerFactory = invokerFactory;
 		this.request = request;
 		this.invokeCallback = invokeCallback;
-
 		// set-InvokerFuture
 		setInvokerFuture();
 	}
 
-
 	// ---------------------- response pool ----------------------
-
-	public void setInvokerFuture(){
+	public void setInvokerFuture() {
 		this.invokerFactory.setInvokerFuture(request.getRequestId(), this);
 	}
-	public void removeInvokerFuture(){
+
+	public void removeInvokerFuture() {
 		this.invokerFactory.removeInvokerFuture(request.getRequestId());
 	}
 
-
 	// ---------------------- get ----------------------
-
 	public XxlRpcRequest getRequest() {
 		return request;
 	}
+
 	public XxlRpcInvokeCallback getInvokeCallback() {
 		return invokeCallback;
 	}
 
-
 	// ---------------------- for invoke back ----------------------
-
 	public void setResponse(XxlRpcResponse response) {
 		this.response = response;
 		synchronized (lock) {
@@ -67,9 +61,7 @@ public class XxlRpcFutureResponse implements Future<XxlRpcResponse> {
 		}
 	}
 
-
 	// ---------------------- for invoke ----------------------
-
 	@Override
 	public boolean cancel(boolean mayInterruptIfRunning) {
 		// TODO
@@ -97,14 +89,16 @@ public class XxlRpcFutureResponse implements Future<XxlRpcResponse> {
 	}
 
 	@Override
-	public XxlRpcResponse get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+	public XxlRpcResponse get(long timeout, TimeUnit unit)
+			throws InterruptedException, ExecutionException, TimeoutException {
 		if (!done) {
 			synchronized (lock) {
 				try {
 					if (timeout < 0) {
 						lock.wait();
 					} else {
-						long timeoutMillis = (TimeUnit.MILLISECONDS==unit)?timeout:TimeUnit.MILLISECONDS.convert(timeout , unit);
+						long timeoutMillis = (TimeUnit.MILLISECONDS == unit) ? timeout
+								: TimeUnit.MILLISECONDS.convert(timeout, unit);
 						lock.wait(timeoutMillis);
 					}
 				} catch (InterruptedException e) {
@@ -112,12 +106,10 @@ public class XxlRpcFutureResponse implements Future<XxlRpcResponse> {
 				}
 			}
 		}
-
 		if (!done) {
-			throw new XxlRpcException("xxl-rpc, request timeout at:"+ System.currentTimeMillis() +", request:" + request.toString());
+			throw new XxlRpcException(
+					"xxl-rpc, request timeout at:" + System.currentTimeMillis() + ", request:" + request.toString());
 		}
 		return response;
 	}
-
-
 }
